@@ -56,6 +56,15 @@ impl Args {
     }
 }
 
+pub fn execute(args: &Args) -> Result<usize, Box<dyn Error>> {
+    let variable_map = read_json(&args.input)?;
+    let variable_count = variable_map.len();
+
+    write_env(&args.output, variable_map)?;
+
+    Ok(variable_count)
+}
+
 fn is_option(arg: &str) -> bool {
     arg.starts_with("-")
 }
@@ -80,7 +89,7 @@ fn parse_option(arg: &str) {
     }
 }
 
-pub fn write_help() {
+fn write_help() {
     eprintln!(
         "Creates env variables from a json object.\n\n{}: {}",
         "Usage".bold(),
@@ -89,7 +98,7 @@ pub fn write_help() {
     eprintln!("\n{}:\n  -v --version\n  -h --help", "Options".bold());
 }
 
-pub fn read_json(path: &PathBuf) -> Result<HashMap<String, Value>, Box<dyn Error>> {
+fn read_json(path: &PathBuf) -> Result<HashMap<String, Value>, Box<dyn Error>> {
     let mut content = String::new();
     let mut file = File::open(path)?;
     file.read_to_string(&mut content)?;
@@ -99,7 +108,7 @@ pub fn read_json(path: &PathBuf) -> Result<HashMap<String, Value>, Box<dyn Error
     Ok(map)
 }
 
-pub fn write_env(path: &PathBuf, variables: HashMap<String, Value>) -> Result<(), Box<dyn Error>> {
+fn write_env(path: &PathBuf, variables: HashMap<String, Value>) -> Result<(), Box<dyn Error>> {
     let mut output_file = open_output(&path)?;
 
     for (key, value) in variables {
@@ -121,7 +130,7 @@ fn parse_value(value: Value) -> Result<String, Box<dyn Error>> {
     Ok(parsed_value)
 }
 
-pub fn open_output(path: &PathBuf) -> Result<File, Box<dyn Error>> {
+fn open_output(path: &PathBuf) -> Result<File, Box<dyn Error>> {
     let file = OpenOptions::new()
         .create(true)
         .read(true)
