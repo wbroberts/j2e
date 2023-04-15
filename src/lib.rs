@@ -17,8 +17,8 @@ pub struct Args {
     pub output: PathBuf,
 }
 
-const NAME: &'static str = env!("CARGO_PKG_NAME");
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const NAME: &str = env!("CARGO_PKG_NAME");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl Args {
     pub fn parse() -> Args {
@@ -66,11 +66,11 @@ pub fn execute(args: &Args) -> Result<usize, Box<dyn Error>> {
 }
 
 fn is_option(arg: &str) -> bool {
-    arg.starts_with("-")
+    arg.starts_with('-')
 }
 
 fn parse_option(arg: &str) {
-    match arg.as_ref() {
+    match arg {
         "--version" | "-v" => {
             eprintln!("{} {}", NAME, VERSION);
             process::exit(0)
@@ -91,9 +91,8 @@ fn parse_option(arg: &str) {
 
 fn write_help() {
     eprintln!(
-        "Creates env variables from a json object.\n\n{}: {}",
-        "Usage".bold(),
-        "j2e <input file> <output file>"
+        "Creates env variables from a json object.\n\n{}: j2e <input file> <output file>",
+        "Usage".bold()
     );
     eprintln!("\n{}:\n  -v --version\n  -h --help", "Options".bold());
 }
@@ -109,12 +108,12 @@ fn read_json(path: &PathBuf) -> Result<HashMap<String, Value>, Box<dyn Error>> {
 }
 
 fn write_env(path: &PathBuf, variables: HashMap<String, Value>) -> Result<(), Box<dyn Error>> {
-    let mut output_file = open_output(&path)?;
+    let mut output_file = open_output(path)?;
 
     for (key, value) in variables {
         let parsed_value = parse_value(value)?;
         let env_value = format!("{}={}\n", key.to_uppercase(), parsed_value);
-        output_file.write(env_value.as_bytes())?;
+        output_file.write_all(env_value.as_bytes())?;
     }
 
     Ok(())
@@ -124,7 +123,7 @@ fn parse_value(value: Value) -> Result<String, Box<dyn Error>> {
     let mut parsed_value = serde_json::to_string(&value)?;
 
     if value.is_string() {
-        parsed_value = parsed_value.replace("\"", "");
+        parsed_value = parsed_value.replace('\"', "");
     }
 
     Ok(parsed_value)
