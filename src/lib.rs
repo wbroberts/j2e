@@ -81,8 +81,10 @@ fn parse_option(arg: &str) {
         }
         _ => {
             eprintln!(
-                "{}: unexpected option.\n\nDid you mean --version or --help?",
+                "{}: unexpected option.\n\nDid you mean {} or {}?",
                 "Error".bold().red(),
+                "--version".yellow(),
+                "--help".yellow()
             );
             process::exit(1)
         }
@@ -91,10 +93,17 @@ fn parse_option(arg: &str) {
 
 fn write_help() {
     eprintln!(
-        "Creates env variables from a json object.\n\n{}: j2e <input file> <output file>",
-        "Usage".bold()
+        "Creates env variables from a json object.\n\n{}: j2e <INPUT PATH> <OUTPUT PATH>",
+        "Usage".bold().yellow(),
     );
-    eprintln!("\n{}:\n  -v --version\n  -h --help", "Options".bold());
+    eprintln!(
+        "\n{}:\n  {}, {}\n  {}, {}",
+        "Options".bold().yellow(),
+        "-v".green(),
+        "--version".green(),
+        "-h".green(),
+        "--help".green()
+    );
 }
 
 fn read_json(path: &PathBuf) -> Result<HashMap<String, Value>, Box<dyn Error>> {
@@ -123,7 +132,7 @@ fn parse_value(value: Value) -> Result<String, Box<dyn Error>> {
     let mut parsed_value = serde_json::to_string(&value)?;
 
     if value.is_string() {
-        parsed_value = parsed_value.replace('\"', "");
+        parsed_value = parsed_value.replace('"', "");
     }
 
     Ok(parsed_value)
