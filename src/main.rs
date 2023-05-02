@@ -1,7 +1,7 @@
 use std::process;
 
 use colored::Colorize;
-use j2e::{execute, Args};
+use j2e::{command::Args, execute};
 
 fn main() {
     let args = Args::parse();
